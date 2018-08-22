@@ -64,42 +64,6 @@
 //                       TRANSACTION PARSING CONSTANTS                       //
 // ------------------------------------------------------------------------- //
 
-#define ASSET_TYPE_NATIVE 0
-#define ASSET_TYPE_CREDIT_ALPHANUM4 1
-#define ASSET_TYPE_CREDIT_ALPHANUM12 2
-
-#define MEMO_TYPE_NONE 0
-#define MEMO_TYPE_TEXT 1
-#define MEMO_TYPE_ID 2
-#define MEMO_TYPE_HASH 3
-#define MEMO_TYPE_RETURN 4
-
-#define NETWORK_TYPE_PUBLIC 0
-#define NETWORK_TYPE_TEST 1
-#define NETWORK_TYPE_UNKNOWN 2
-
-#define XDR_OPERATION_TYPE_CREATE_ACCOUNT 0
-#define XDR_OPERATION_TYPE_PAYMENT 1
-#define XDR_OPERATION_TYPE_PATH_PAYMENT 2
-#define XDR_OPERATION_TYPE_MANAGE_OFFER 3
-#define XDR_OPERATION_TYPE_CREATE_PASSIVE_OFFER 4
-#define XDR_OPERATION_TYPE_SET_OPTIONS 5
-#define XDR_OPERATION_TYPE_CHANGE_TRUST 6
-#define XDR_OPERATION_TYPE_ALLOW_TRUST 7
-#define XDR_OPERATION_TYPE_ACCOUNT_MERGE 8
-#define XDR_OPERATION_TYPE_INFLATION 9
-#define XDR_OPERATION_TYPE_MANAGE_DATA 10
-#define XDR_OPERATION_TYPE_BUMP_SEQUENCE 11
-
-#define SIGNER_KEY_TYPE_ED25519 0
-#define SIGNER_KEY_TYPE_PRE_AUTH_TX 1
-#define SIGNER_KEY_TYPE_HASH_X 2
-
-#define PUBLIC_KEY_TYPE_ED25519 0
-#define MEMO_TEXT_MAX_SIZE 28
-#define DATA_NAME_MAX_SIZE 64
-#define DATA_VALUE_MAX_SIZE 64
-#define HOME_DOMAIN_MAX_SIZE 32
 
 // ------------------------------------------------------------------------- //
 //                             DISPLAY CONSTANTS                             //
@@ -157,162 +121,67 @@ static const char* NETWORK_NAMES[3] = { "Public", "Test", "Unknown" };
 // ------------------------------------------------------------------------- //
 //                           TYPE DEFINITIONS                                //
 // ------------------------------------------------------------------------- //
-
-
-//   "transfer": {
-//     "base": "",
-//     "action": {
-//       "name": "transfer",
-//       "account": "eosio.token"
-//     },
-//     "fields": {
-//       "from": "account_name",  uint64
-//       "to": "account_name",    uint64
-//       "quantity": "asset",     int64, uint64
-//       "memo": "string"         unsigned char[80]
-//     }
-//   }
+typedef struct {
+    uint64_t actor;
+    uint64_t permission;
+} authorization_t;
 
 typedef struct {
-    uint8_t type;
-    char code[13];
-    uint8_t *issuer;
-} asset_t;
+    uint64_t from;
+    uint64_t to;
+    uint64_t quantity;
+    uint64_t memo;    
+} transfer_action_t;
 
 typedef struct {
-    uint32_t numerator;
-    uint32_t denominator;
-} price_t;
+    uint64_t from;
+} buyram_action_t;
 
 typedef struct {
-    uint8_t *accountId;
-    uint64_t amount;
-
-} create_account_op_t;
+    uint64_t from;
+} sellram_action_t;
 
 typedef struct {
-    uint8_t *destination;
-    uint64_t amount;
-    asset_t asset;
-} payment_op_t;
+    uint64_t from;
+} stakeup_action_t;
 
 typedef struct {
-    uint8_t *destination;
-    asset_t sourceAsset;
-    uint64_t sendMax;
-    asset_t destAsset;
-    uint64_t destAmount;
-    uint8_t pathLen;
-    asset_t path[5];
-} path_payment_op_t;
+    uint64_t from;
+} stakedown_action_t;
 
 typedef struct {
-    asset_t buying;
-    asset_t selling;
-    uint64_t amount;
-    price_t price;
-    uint64_t offerId;
-    bool active;
-} manage_offer_op_t;
+    uint64_t from;    
+} vote_action_t;
 
 typedef struct {
-    asset_t asset;
-    uint64_t limit;
-} change_trust_op_t;
-
-typedef struct {
-    char assetCode[13];
-    uint8_t *trustee;
-    bool authorize;
-} allow_trust_op_t;
-
-typedef struct {
-    uint8_t *destination;
-} account_merge_op_t;
-
-typedef struct {
-    int64_t bumpTo;
-} bump_sequence_op_t;
-
-typedef struct {
-    uint8_t type;
-    uint8_t *data;
-    uint32_t weight;
-} signer_t;
-
-typedef struct {
-    bool inflationDestinationPresent;
-    uint8_t *inflationDestination;
-    uint32_t clearFlags;
-    uint32_t setFlags;
-    bool masterWeightPresent;
-    uint32_t masterWeight;
-    bool lowThresholdPresent;
-    uint32_t lowThreshold;
-    bool mediumThresholdPresent;
-    uint32_t mediumThreshold;
-    bool highThresholdPresent;
-    uint32_t highThreshold;
-    uint32_t homeDomainSize;
-    uint8_t *homeDomain;
-    bool signerPresent;
-    signer_t signer;
-} set_options_op_t;
-
-typedef struct {
-    uint8_t dataNameSize;
-    uint8_t *dataName;
-    uint8_t dataValueSize;
-    uint8_t *dataValue;
-} manage_data_op_t;
-
-typedef struct {
-    uint8_t type;
-    bool sourcePresent;
-    uint8_t *source;
+    uint64_t account;        
+    uint64_t type;    
+    //authorization_t authorization[5];    
     union {
-        create_account_op_t createAccount;
-        payment_op_t payment;
-        path_payment_op_t pathPayment;
-        manage_offer_op_t manageOffer;
-        change_trust_op_t changeTrust;
-        allow_trust_op_t allowTrust;
-        account_merge_op_t accountMerge;
-        set_options_op_t setOptions;
-        manage_data_op_t manageData;
-        bump_sequence_op_t bumpSequence;
+        transfer_action_t transfer;
+        buyram_action_t buyram;
+        sellram_action_t sellram;
+        stakeup_action_t stakeup;
+        stakedown_action_t stakedown;
+        vote_action_t vote;
     } op;
 } operation_details_t;
 
 typedef struct {
-    uint8_t type;
-    char data[65];
-} memo_t;
-
-typedef struct {
-    uint64_t minTime;
-    uint64_t maxTime;
-} time_bounds_t;
-
-typedef struct {
-    memo_t memo;
-    uint64_t fee;
-    uint8_t network;
-    bool hasTimeBounds;
-    time_bounds_t timeBounds;
-    uint8_t *source;
+    uint32_t expiration;
+    uint16_t ref_block_num;
+    uint32_t ref_block_prefix;
+    uint8_t net_usage_words;
+    uint8_t max_cpu_usage_ms;
+    uint8_t delay_sec;
     int64_t sequenceNumber;
 } tx_details_t;
 
 typedef struct {
-//    uint8_t publicKey[32];
     cx_ecfp_public_key_t publicKey;
-//    uint8_t address[41];
     unsigned char address[50];
     uint8_t chainCode[32];
     bool getChaincode;    
-//    uint8_t signature[64];
-//    bool returnSignature;
 } pk_context_t;
 
 typedef struct {

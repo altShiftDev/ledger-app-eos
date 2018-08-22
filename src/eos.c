@@ -176,7 +176,6 @@ unsigned int set_result_sign_tx(void) {
     MEMCLEAR(signature);
     MEMCLEAR(eos_signature);
 
-    unsigned int tempInfo = 0;
     do {
         signatureLength = cx_ecdsa_sign(&privateKey, CX_RND_TRNG | CX_LAST, CX_SHA256, ctx.req.tx.hash, 32, signature, &info);    
     }
