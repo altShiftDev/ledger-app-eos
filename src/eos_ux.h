@@ -18,18 +18,23 @@
 #ifndef EOS_UX_COMMON_H
 #define EOS_UX_COMMON_H
 
+#ifndef TEST
 #include "os_io_seproxyhal.h"
+#endif
+
 #include "eos_types.h"
 
 // ------------------------------------------------------------------------- //
 //                     Implemented by eos_ux_common.c                        //
 // ------------------------------------------------------------------------- //
 
+#ifndef TEST
 unsigned int io_seproxyhal_respond(unsigned short sw, uint32_t tx);
 unsigned int io_seproxyhal_touch_tx_ok(const bagl_element_t *e);
 unsigned int io_seproxyhal_touch_tx_cancel(const bagl_element_t *e);
 unsigned int io_seproxyhal_touch_address_ok(const bagl_element_t *e);
 unsigned int io_seproxyhal_touch_address_cancel(const bagl_element_t *e);
+#endif
 
 // ------------------------------------------------------------------------- //
 //        Implemented by both eos_ux_nanos.c and eos_ux_blue.c               //

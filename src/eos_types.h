@@ -17,10 +17,14 @@
 #ifndef _EOS_TYPES_H_
 #define _EOS_TYPES_H_
 
-#include "os.h"
-#include "cx.h"
 #include <stdint.h>
 #include <stdbool.h>
+
+// #ifndef TEST
+// #include "os.h"
+// #include "cx.h"
+// #endif
+
 
 // ------------------------------------------------------------------------- //
 //                       REQUEST PARSING CONSTANTS                           //
@@ -121,49 +125,203 @@ static const char* NETWORK_NAMES[3] = { "Public", "Test", "Unknown" };
 // ------------------------------------------------------------------------- //
 //                           TYPE DEFINITIONS                                //
 // ------------------------------------------------------------------------- //
+
 typedef struct {
     uint64_t actor;
     uint64_t permission;
 } authorization_t;
 
 typedef struct {
+    int64_t amount;
+    uint64_t symbol;
+} asset_t;
+
+// FUNCTION
+// transfer
+
+// PARAMETERS
+// {
+//     "from": "account_name",
+//     "to": "account_name",
+//     "quantity": "asset",
+//     "memo": "string"
+// }
+
+// EXAMPLE
+// {
+//     "from": "",
+//     "to": "",
+//     "quantity": "0.0001 SYS",
+//     "memo": ""
+// }
+
+typedef struct {
     uint64_t from;
     uint64_t to;
-    uint64_t quantity;
+    asset_t quantity;
     uint64_t memo;    
 } transfer_action_t;
 
+
+// FUNCTION
+// buyram
+
+// PARAMETERS
+// {
+//     "payer": "account_name",
+//     "receiver": "account_name",
+//     "quant": "asset"
+// }
+
+// EXAMPLE
+// {
+//     "payer": "",
+//     "receiver": "",
+//     "quant": "0.0001 SYS"
+// }
+
 typedef struct {
-    uint64_t from;
+    uint64_t payer;
+    uint64_t receiver;   
+    asset_t quant; 
 } buyram_action_t;
 
+// FUNCTION
+// buyrambytes
+
+// PARAMETERS
+// {
+//     "payer": "account_name",
+//     "receiver": "account_name",
+//     "bytes": "uint32"
+// }
+
+// EXAMPLE
+// {
+//     "payer": "",
+//     "receiver": "",
+//     "bytes": 0
+// }
+
 typedef struct {
-    uint64_t from;
+    uint64_t payer;
+    uint64_t receiver;   
+    uint32_t bytes;
+} buyrambytes_action_t;
+
+// FUNCTION
+// sellram
+
+// PARAMETERS
+// {
+//     "account": "account_name",
+//     "bytes": "uint64"
+// }
+
+// EXAMPLE
+// {
+//     "account": "",
+//     "bytes": "0"
+// }
+
+typedef struct {
+    uint64_t account;   
+    uint64_t bytes;
 } sellram_action_t;
 
-typedef struct {
-    uint64_t from;
-} stakeup_action_t;
+// FUNCTION
+// delegatebw
+
+// PARAMETERS
+// {
+//     "from": "account_name",
+//     "receiver": "account_name",
+//     "stake_net_quantity": "asset",
+//     "stake_cpu_quantity": "asset",
+//     "transfer": "bool"
+// }
+
+// EXAMPLE
+// {
+//     "from": "",
+//     "receiver": "",
+//     "stake_net_quantity": "0.0001 SYS",
+//     "stake_cpu_quantity": "0.0001 SYS",
+//     "transfer": 0
+// }
 
 typedef struct {
     uint64_t from;
-} stakedown_action_t;
+    uint64_t receiver;   
+    asset_t stake_net_quantity; 
+    asset_t stake_cpu_quantity;
+    int transfer;
+} delegatebw_action_t;
+
+// FUNCTION
+// undelegatebw
+
+// PARAMETERS
+// {
+//     "from": "account_name",
+//     "receiver": "account_name",
+//     "unstake_net_quantity": "asset",
+//     "unstake_cpu_quantity": "asset"
+// }
+
+// EXAMPLE
+// {
+//     "from": "",
+//     "receiver": "",
+//     "unstake_net_quantity": "0.0001 SYS",
+//     "unstake_cpu_quantity": "0.0001 SYS"
+// }
 
 typedef struct {
-    uint64_t from;    
-} vote_action_t;
+    uint64_t from;
+    uint64_t receiver;   
+    asset_t unstake_net_quantity; 
+    asset_t unstake_cpu_quantity;
+} undelegatebw_action_t;
+
+// FUNCTION
+// voteproducer
+
+// PARAMETERS
+// {
+//     "voter": "account_name",
+//     "proxy": "account_name",
+//     "producers": "account_name[]"
+// }
+
+// EXAMPLE
+// {
+//     "voter": "",
+//     "proxy": "",
+//     "producers": [
+//         ""
+//     ]
+// }
+
+typedef struct {
+    uint64_t voter;
+    uint64_t proxy;   
+    uint64_t producers;
+} voteproducer_action_t;
 
 typedef struct {
     uint64_t account;        
-    uint64_t type;    
-    //authorization_t authorization[5];    
+    uint64_t name;    
+    uint8_t type;        
+    //authorization_t authorization[3];    
     union {
         transfer_action_t transfer;
         buyram_action_t buyram;
+        buyrambytes_action_t buyrambytes;        
         sellram_action_t sellram;
-        stakeup_action_t stakeup;
-        stakedown_action_t stakedown;
-        vote_action_t vote;
+        delegatebw_action_t delegatebw;
+        undelegatebw_action_t undelegatebw;
+        voteproducer_action_t voteproducer;
     } op;
 } operation_details_t;
 
@@ -178,7 +336,7 @@ typedef struct {
 } tx_details_t;
 
 typedef struct {
-    cx_ecfp_public_key_t publicKey;
+    //cx_ecfp_public_key_t publicKey;
     unsigned char address[50];
     uint8_t chainCode[32];
     bool getChaincode;    

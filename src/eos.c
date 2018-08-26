@@ -78,7 +78,8 @@ void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t
     uint8_t bip32Len = read_bip32(dataBuffer, bip32);
 
     cx_ecfp_private_key_t privateKey;
-    init_public_key(&privateKey, &ctx.req.pk.publicKey, bip32, bip32Len);    
+    cx_ecfp_public_key_t publicKey;    
+    init_public_key(&privateKey, &publicKey, bip32, bip32Len);    
     MEMCLEAR(privateKey);
 
     if (p2 & P2_CONFIRM) {

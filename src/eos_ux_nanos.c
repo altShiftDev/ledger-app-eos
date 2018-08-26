@@ -15,6 +15,7 @@
  *  limitations under the License.
  ********************************************************************************/
 #include "bolos_target.h"
+#include "eos_format.h"
 
 #ifdef TARGET_NANOS
 
@@ -22,7 +23,7 @@
 #include "eos_types.h"
 #include "eos_api.h"
 #include "eos_vars.h"
-#include "eos_format.h"
+//#include "eos_format.h"
 
 #include "glyphs.h"
 
@@ -250,7 +251,7 @@ unsigned int ui_approve_tx_nanos_button(unsigned int button_mask, unsigned int b
 format_function_t next_formatter(tx_context_t *txCtx) {
     BEGIN_TRY {
         TRY {
-            parse_tx_xdr(txCtx->raw, txCtx);
+            parse_tx(txCtx->raw, txCtx);
         } CATCH_OTHER(sw) {
             io_seproxyhal_respond(sw, 0);
             return NULL;

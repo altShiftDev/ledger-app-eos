@@ -18,18 +18,36 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+//#include <byteswap.h>
 
 #include "eos_types.h"
+#include "eos_varint.h"
 #include "eos_api.h"
 
 #ifndef TEST
 #include "os.h"
 #endif
 
+// #define bswap_16(value) \
+// ((((value) & 0xff) << 8) | ((value) >> 8))
+
+// #define bswap_32(value) \
+// (((uint32_t)bswap_16((uint16_t)((value) & 0xffff)) << 16) | \
+// (uint32_t)bswap_16((uint16_t)((value) >> 16)))
+
+// #define bswap_64(value) \
+// (((uint64_t)bswap_32((uint32_t)((value) & 0xffffffff)) \
+// << 32) | \
+// (uint64_t)bswap_32((uint32_t)((value) >> 32)))
+
+
 static const char hexAlphabet[] = "0123456789ABCDEF";
 static const char base32Alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-static const char base64Alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static int base64ModTable[] = {0, 2, 1};
+//static const char base64Alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char charmap[] = ".12345abcdefghijklmnopqrstuvwxyz";
+//static int base64ModTable[] = {0, 2, 1};
+
+
 
 
 unsigned short crc16(char *ptr, int count) {
@@ -109,31 +127,31 @@ int base32_encode(const uint8_t *data, int length, char *result, int bufSize) {
 }
 
 
-void base64_encode(const uint8_t *data, int inLen, char *out) {
+// void base64_encode(const uint8_t *data, int inLen, char *out) {
 
-    size_t outLen = 4 * ((inLen + 2) / 3);
+//     size_t outLen = 4 * ((inLen + 2) / 3);
+//     int i, j;
+//     for (i = 0, j = 0; i < inLen;) {
 
-    for (int i = 0, j = 0; i < inLen;) {
+//         uint32_t octet_a = i < inLen ? data[i++] : 0;
+//         uint32_t octet_b = i < inLen ? data[i++] : 0;
+//         uint32_t octet_c = i < inLen ? data[i++] : 0;
 
-        uint32_t octet_a = i < inLen ? data[i++] : 0;
-        uint32_t octet_b = i < inLen ? data[i++] : 0;
-        uint32_t octet_c = i < inLen ? data[i++] : 0;
+//         uint32_t triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
 
-        uint32_t triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
+//         out[j++] = base64Alphabet[(triple >> 3 * 6) & 0x3F];
+//         out[j++] = base64Alphabet[(triple >> 2 * 6) & 0x3F];
+//         out[j++] = base64Alphabet[(triple >> 1 * 6) & 0x3F];
+//         out[j++] = base64Alphabet[(triple >> 0 * 6) & 0x3F];
+//     }
 
-        out[j++] = base64Alphabet[(triple >> 3 * 6) & 0x3F];
-        out[j++] = base64Alphabet[(triple >> 2 * 6) & 0x3F];
-        out[j++] = base64Alphabet[(triple >> 1 * 6) & 0x3F];
-        out[j++] = base64Alphabet[(triple >> 0 * 6) & 0x3F];
-    }
+//     //int i;
+//     for (i = 0; i < base64ModTable[inLen % 3]; i++) {
+//         out[outLen - 1 - i] = '=';
+//     }
 
-    int i;
-    for (i = 0; i < base64ModTable[inLen % 3]; i++) {
-        out[outLen - 1 - i] = '=';
-    }
-
-    out[outLen] = '\0';
-}
+//     out[outLen] = '\0';
+// }
 
 void encode_key(uint8_t *in, char *out, uint8_t versionByte) {
     uint8_t buffer[35];
@@ -153,8 +171,47 @@ void encode_public_key(uint8_t *in, char *out) {
     encode_key(in, out, 6 << 3);
 }
 
-void encode_hash_x_key(uint8_t *in, char *out) {
-    encode_key(in, out, 23 << 3);
+// void encode_hash_x_key(uint8_t *in, char *out) {
+//     encode_key(in, out, 23 << 3);
+// }
+
+char* rtrim(char* string, char junk) {
+    char* original = string + strlen(string) - 1;
+    while(*--original == junk);
+    *(original + 1) = '\0';
+    return string;
+}
+
+uint32_t parse_name(uint64_t value, char* out) {
+    char str[13];
+    memset(str, '.', 13);
+    uint64_t tmp = value;
+    //uint64_t tmp = __bswap_64(0x572d3ccdcd);
+    uint32_t i;
+    for(i = 0; i <= 12; i++ ) {
+        char c = charmap[tmp & (i == 0 ? 0x0f : 0x1f)];
+        str[12-i] = c;
+        tmp >>= (i == 0 ? 4 : 5);
+    }
+
+    memcpy(out, rtrim(str, '.'), 13);
+    //out = rtrim(str, '.');
+    return strlen(out);
+}   
+
+// uint32_t read_uint32_block(uint8_t *buffer) {
+//     return buffer[3] + (buffer[2] << 8) + (buffer[1] <<  16) + (buffer[0] << 24);
+// }
+
+// uint64_t read_uint64_block(uint8_t *buffer) {
+//     uint64_t i1 = buffer[3] + (buffer[2] << 8) + (buffer[1] <<  16) + (buffer[0] << 24);
+//     buffer += 4;
+//     uint32_t i2 = buffer[3] + (buffer[2] << 8) + (buffer[1] <<  16) + (buffer[0] << 24);
+//     return i2 | (i1 << 32);
+// }
+
+uint32_t parse_varint32(uint8_t* buf, unsigned char* bytes) {
+    return varint_decode(buf, 4, bytes);
 }
 
 void print_summary(char *in, char *out, uint8_t numCharsL, uint8_t numCharsR) {
