@@ -204,6 +204,8 @@ uint16_t parse_undelegatebw(uint8_t *buffer, undelegatebw_action_t *action, uint
 //     "producers": "account_name[]"
 uint16_t parse_voteproducer(uint8_t *buffer, voteproducer_action_t *action, uint32_t* length) {
     uint16_t offset = 0;
+    unsigned char bts;
+
     // voter
     memcpy(&action->voter, buffer + offset, sizeof(uint64_t));    
     offset += 8;
@@ -212,7 +214,16 @@ uint16_t parse_voteproducer(uint8_t *buffer, voteproducer_action_t *action, uint
     memcpy(&action->proxy, buffer + offset, sizeof(uint64_t));
     offset += 8;
 
-    // parse array
+    // length of producers
+    uint32_t num_producers = parse_varint32(buffer + offset, &bts);
+    offset += bts;
+
+    // producers
+    uint32_t i;
+    for (i = 0; i < num_producers; i++) {
+        //memcpy(&action->producer[i], buffer + offset, sizeof(uint64_t));
+        offset += 8;
+    }
 
     offset = *(length);
     return offset;
@@ -220,26 +231,23 @@ uint16_t parse_voteproducer(uint8_t *buffer, voteproducer_action_t *action, uint
 
 uint16_t parse_op(uint8_t *buffer, operation_details_t *opDetails) {
     uint16_t offset = 0;   
-    //unsigned char out[13];
     unsigned char bts;
 
     // account
     memcpy(&opDetails->account, buffer + offset, sizeof(uint64_t));    
-    //opDetails->account = read_uint64_block(buffer + offset);
     offset += 8;
 
     // type
     memcpy(&opDetails->name, buffer + offset, sizeof(uint64_t));
-    //opDetails->name = read_uint64_block(buffer + offset);
     offset += 8;
 
     // authorizations length
-    parse_varint32(buffer + offset, &bts);
+    uint32_t num_authorization = parse_varint32(buffer + offset, &bts);
     offset += bts;
 
     // authorizations
-    int i;
-    for (i = 0; i < bts; i++) {
+    uint32_t i;
+    for (i = 0; i < num_authorization; i++) {
         offset += parse_authorization(buffer + offset, i);
     }
 
@@ -320,9 +328,6 @@ void parse_tx(uint8_t *buffer, tx_context_t *txCtx) {
         // context free actions length (varint32)
         parse_varint32(buffer + offset, &bts);
         offset += bts;
-
-        // if length > 0 read through context free actions to get new offset
-        // no need to show these for now.
 
         // read actions length (varint32)    
         txCtx->opCount = parse_varint32(buffer + offset, &bts);
