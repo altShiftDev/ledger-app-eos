@@ -68,15 +68,6 @@ void parse_tx(uint8_t *buffer, tx_context_t *txCtx);
 /**  base32 encode public key */
 void encode_public_key(uint8_t *in, char *out);
 
-// /** base32 encode sha256 hash */
-// void encode_hash_x_key(uint8_t *in, char *out);
-
-// /** read uint32 from buffer */
-// uint32_t read_uint32_block(uint8_t *buffer);
-
-// /** read uint64 from buffer */
-// uint64_t read_uint64_block(uint8_t *buffer);
-
 /** read varint32 from buffer */
 uint32_t parse_varint32(uint8_t* buf, unsigned char* bytes);
 
@@ -108,9 +99,5 @@ void print_int(int64_t l, char *out);
 
 /** integer to string for display of offerid, sequence number, threshold weights, etc */
 void print_uint(uint64_t l, char *out);
-
-// /** base64 encoding function used to display managed data values */
-// void base64_encode(const uint8_t *data, int inLen, char *out);
-
 
 #endif
