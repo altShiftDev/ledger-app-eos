@@ -93,23 +93,23 @@ void format_transfer_quantity(tx_context_t *txCtx) {
     strcpy(detailCaption, "Quantity"); 
     char tmp[64];
     format_asset(&txCtx->opDetails.op.transfer.quantity, tmp, 64);
-    print_summary(tmp,  detailValue, 13, 13);    
+    print_summary(tmp,  detailValue, 6, 6);    
     formatter = NULL;
 }
 
 void format_transfer_to(tx_context_t *txCtx) {
     strcpy(detailCaption, "To");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.transfer.to, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.transfer.to, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_transfer_quantity;
 }
 
 void format_transfer_from(tx_context_t *txCtx) {
     strcpy(detailCaption, "Transfer");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.transfer.from, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.transfer.from, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_transfer_to;
 }
 
@@ -121,23 +121,23 @@ void format_buyram_quant(tx_context_t *txCtx) {
     strcpy(detailCaption, "Quantity");    
     char tmp[64];
     format_asset(&txCtx->opDetails.op.buyram.quant, tmp, 64);
-    print_summary(tmp,  detailValue, 13, 13);    
+    print_summary(tmp,  detailValue, 6, 6);    
     formatter = NULL;
 }
 
 void format_buyram_receiver(tx_context_t *txCtx) {
     strcpy(detailCaption, "Receiver");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.buyram.receiver, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.buyram.receiver, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_buyram_quant;
 }
 
 void format_buyram_payer(tx_context_t *txCtx) {
     strcpy(detailCaption, "Buy RAM");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.buyram.payer, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.buyram.payer, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_buyram_receiver;
 }
 
@@ -149,23 +149,23 @@ void format_buyrambytes_bytes(tx_context_t *txCtx) {
     strcpy(detailCaption, "Bytes");    
     char tmp[64];
     print_int(txCtx->opDetails.op.buyrambytes.bytes, tmp);
-    print_summary(tmp,  detailValue, 13, 13);    
+    print_summary(tmp,  detailValue, 6, 6);    
     formatter = NULL;
 }
 
 void format_buyrambytes_receiver(tx_context_t *txCtx) {
     strcpy(detailCaption, "Receiver");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.buyrambytes.receiver, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.buyrambytes.receiver, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_buyrambytes_bytes;
 }
 
 void format_buyrambytes_payer(tx_context_t *txCtx) {
     strcpy(detailCaption, "Buy RAM");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.buyrambytes.payer, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.buyrambytes.payer, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_buyrambytes_receiver;
 }
 
@@ -177,15 +177,15 @@ void format_sellram_bytes(tx_context_t *txCtx) {
     strcpy(detailCaption, "Bytes");    
     char tmp[64];
     print_int(txCtx->opDetails.op.sellram.bytes, tmp);
-    print_summary(tmp,  detailValue, 13, 13);    
+    print_summary(tmp,  detailValue, 6, 6);    
     formatter = NULL;
 }
 
 void format_sellram_account(tx_context_t *txCtx) {
     strcpy(detailCaption, "Sell RAM");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.sellram.account, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.sellram.account, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_sellram_bytes;
 }
 
@@ -197,7 +197,7 @@ void format_delegatebw_transfer(tx_context_t *txCtx) {
     strcpy(detailCaption, "Transfer");    
     char tmp[64];
     print_int(txCtx->opDetails.op.delegatebw.transfer, tmp);
-    print_summary(tmp,  detailValue, 13, 13);    
+    print_summary(tmp,  detailValue, 6, 6);    
     formatter = NULL;
 }
 
@@ -205,7 +205,7 @@ void format_delegatebw_stake_cpu_quantity(tx_context_t *txCtx) {
     strcpy(detailCaption, "CPU");    
     char tmp[32];
     format_asset(&txCtx->opDetails.op.delegatebw.stake_cpu_quantity, tmp, 32);
-    print_summary(tmp,  detailValue, 13, 13);    
+    print_summary(tmp,  detailValue, 6, 6);    
     formatter = &format_delegatebw_transfer;
 }
 
@@ -213,23 +213,23 @@ void format_delegatebw_stake_net_quantity(tx_context_t *txCtx) {
     strcpy(detailCaption, "NET");    
     char tmp[32];
     format_asset(&txCtx->opDetails.op.delegatebw.stake_net_quantity, tmp, 32);
-    print_summary(tmp,  detailValue, 13, 13);    
+    print_summary(tmp,  detailValue, 6, 6);    
     formatter = &format_delegatebw_stake_cpu_quantity;
 }
 
 void format_delegatebw_receiver(tx_context_t *txCtx) {
     strcpy(detailCaption, "Receiver");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.delegatebw.receiver, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.delegatebw.receiver, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_delegatebw_stake_net_quantity;
 }
 
 void format_delegatebw_from(tx_context_t *txCtx) {
     strcpy(detailCaption, "Increase Stake");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.delegatebw.from, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.delegatebw.from, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_delegatebw_receiver;
 }
 
@@ -241,7 +241,7 @@ void format_undelegatebw_stake_cpu_quantity(tx_context_t *txCtx) {
     strcpy(detailCaption, "CPU");    
     char tmp[64];
     format_asset(&txCtx->opDetails.op.undelegatebw.unstake_cpu_quantity, tmp, 64);
-    print_summary(tmp,  detailValue, 13, 13);    
+    print_summary(tmp,  detailValue, 6, 6);    
     formatter = NULL;
 }
 
@@ -249,23 +249,23 @@ void format_undelegatebw_stake_net_quantity(tx_context_t *txCtx) {
     strcpy(detailCaption, "NET");    
     char tmp[64];
     format_asset(&txCtx->opDetails.op.undelegatebw.unstake_net_quantity, tmp, 64);
-    print_summary(tmp,  detailValue, 13, 13);    
+    print_summary(tmp,  detailValue, 6, 6);    
     formatter = &format_undelegatebw_stake_cpu_quantity;
 }
 
 void format_undelegatebw_receiver(tx_context_t *txCtx) {
     strcpy(detailCaption, "Receiver");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.undelegatebw.receiver, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.undelegatebw.receiver, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_undelegatebw_stake_net_quantity;
 }
 
 void format_undelegatebw_from(tx_context_t *txCtx) {
     strcpy(detailCaption, "Decrease Stake");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.undelegatebw.from, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.undelegatebw.from, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_undelegatebw_receiver;
 }
 
@@ -276,16 +276,16 @@ void format_undelegatebw(tx_context_t *txCtx) {
 void format_voteproducer_proxy(tx_context_t *txCtx) {
     strcpy(detailCaption, "Set Proxy");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.voteproducer.proxy, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.voteproducer.proxy, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = NULL;
 }
 
 void format_voteproducer_voter(tx_context_t *txCtx) {
     strcpy(detailCaption, "Vote Producer");    
     char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.voteproducer.voter, tmp);    
-    print_summary(tmp, detailValue, length, length);
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.voteproducer.voter, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
     formatter = &format_voteproducer_proxy;
 }
 
