@@ -46,13 +46,13 @@ void init_public_key(cx_ecfp_private_key_t *privateKey, cx_ecfp_public_key_t *pu
     cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, 32, privateKey);
     cx_ecfp_generate_pair(CX_CURVE_256K1, publicKey, privateKey, 1);
 
-    os_memset(privateKeyData, 0, sizeof(privateKeyData));
-    os_memset(ctx.req.pk.address, 0, sizeof(ctx.req.pk.address));
+    os_memset(privateKeyData, 0, 33);    
+    eos_compress_public_key(publicKey, privateKeyData, 33);
 
-    eos_compress_public_key(publicKey, privateKeyData, sizeof(privateKeyData));    
-    eos_hash_and_encode_base58(privateKeyData, sizeof(privateKeyData), ctx.req.pk.address, sizeof(ctx.req.pk.address));
+    os_memset(ctx.req.pk.address, 0, 50);    
+    eos_hash_and_encode_base58(privateKeyData, 33, ctx.req.pk.address, 50);
 
-    os_memset(privateKeyData, 0, sizeof(privateKeyData));    
+    os_memset(privateKeyData, 0, 33);    
 }
 
 
@@ -78,8 +78,9 @@ void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t
     uint8_t bip32Len = read_bip32(dataBuffer, bip32);
 
     cx_ecfp_private_key_t privateKey;
-    cx_ecfp_public_key_t publicKey;    
-    init_public_key(&privateKey, &publicKey, bip32, bip32Len);    
+    //cx_ecfp_public_key_t publicKey;    
+    //init_public_key(&privateKey, &publicKey, bip32, bip32Len);        
+    init_public_key(&privateKey, &ctx.req.pk.publicKey, bip32, bip32Len);    
     MEMCLEAR(privateKey);
 
     if (p2 & P2_CONFIRM) {
@@ -184,7 +185,7 @@ unsigned int set_result_sign_tx(void) {
 
     MEMCLEAR(privateKey);
 
-    tx = eos_signature_to_encoded_base58(signature, signatureLength, eos_signature, sizeof(eos_signature), &info);
+    tx = eos_signature_to_encoded_base58(signature, signatureLength, eos_signature, 100, &info);
     os_memmove(G_io_apdu_buffer, eos_signature, tx);
     return tx;
 }

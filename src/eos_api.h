@@ -68,6 +68,9 @@ void parse_tx(uint8_t *buffer, tx_context_t *txCtx);
 /**  base32 encode public key */
 void encode_public_key(uint8_t *in, char *out);
 
+/** base32 encode pre-auth transaction hash */
+void encode_pre_auth_key(uint8_t *in, char *out);
+
 /** read varint32 from buffer */
 uint32_t parse_varint32(uint8_t* buf, unsigned char* bytes);
 
@@ -93,6 +96,15 @@ void print_binary_summary(uint8_t *in, char *out, uint8_t len);
 
 /** raw amount integer to asset-qualified string representation */
 void print_amount(uint64_t amount, char *asset, char *out);
+
+/** concatenate assetCode and assetIssuer summary */
+void print_asset_t(asset_t *asset, char *out);
+ /** concatenate assetCode and assetIssuer */
+void print_asset(char *assetCode, char *assetIssuer, char *out);
+ /** "XLM" or "native" depending on the network id */
+void print_native_asset_code(uint8_t network, char *out);
+ /** string representation of flags present */
+void print_flags(uint32_t flags, char *out, char prefix);
 
 /** integer to string for display of sequence number */
 void print_int(int64_t l, char *out);

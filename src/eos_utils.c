@@ -144,6 +144,14 @@ void encode_public_key(uint8_t *in, char *out) {
     encode_key(in, out, 6 << 3);
 }
 
+void encode_pre_auth_key(uint8_t *in, char *out) {
+    encode_key(in, out, 19 << 3);
+}
+
+void encode_hash_x_key(uint8_t *in, char *out) {
+    encode_key(in, out, 23 << 3);
+}
+
 char* rtrim(char* string, char junk) {
     char* original = string + strlen(string) - 1;
     while(*--original == junk);
@@ -325,4 +333,47 @@ void print_uint(uint64_t l, char *out) {
         out[j] = buffer[i];
     }
     out[j] = '\0';
+}
+
+void print_asset_t(asset_t *asset, char *out) {
+    //char issuer[12];
+    //print_public_key(asset->issuer, issuer, 3, 4);
+    //print_asset(asset->code, issuer, out);
+}
+
+ void print_asset(char *code, char *issuer, char *out) {
+    uint8_t offset = strlen(code);
+    strcpy(out, code);
+    out[offset] = '@';
+    strcpy(out+offset+1, issuer);
+}
+ void print_flag(char *flag, char *out, char prefix) {
+    uint8_t len = strlen(out);
+    if (len) {
+        strcpy(out+len, ", ");
+        len += 2;
+    }
+    if (prefix) {
+        out[len] = prefix;
+        len += 1;
+    }
+    strcpy(out+len, flag);
+}
+ void print_flags(uint32_t flags, char *out, char prefix) {
+    if (flags & 0x01) {
+        print_flag("Auth required", out, prefix);
+    }
+    if (flags & 0x02) {
+        print_flag("Auth revocable", out, prefix);
+    }
+    if (flags & 0x04) {
+        print_flag("Auth immutable", out, prefix);
+    }
+}
+ void print_native_asset_code(uint8_t network, char *out) {
+    // if (network == NETWORK_TYPE_UNKNOWN) {
+    //     strcpy(out, "native");
+    // } else {
+    //     strcpy(out, "XLM");
+    // }
 }

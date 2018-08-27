@@ -20,10 +20,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// #ifndef TEST
-// #include "os.h"
-// #include "cx.h"
-// #endif
+#ifndef TEST
+#include "os.h"
+#include "cx.h"
+#endif
 
 
 // ------------------------------------------------------------------------- //
@@ -336,7 +336,9 @@ typedef struct {
 } tx_details_t;
 
 typedef struct {
-    //cx_ecfp_public_key_t publicKey;
+    #ifndef TEST
+    cx_ecfp_public_key_t publicKey;
+    #endif
     unsigned char address[50];
     uint8_t chainCode[32];
     bool getChaincode;    
