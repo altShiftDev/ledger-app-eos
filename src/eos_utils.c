@@ -371,9 +371,4 @@ void print_asset_t(asset_t *asset, char *out) {
     }
 }
  void print_native_asset_code(uint8_t network, char *out) {
-    // if (network == NETWORK_TYPE_UNKNOWN) {
-    //     strcpy(out, "native");
-    // } else {
-    //     strcpy(out, "XLM");
-    // }
 }
