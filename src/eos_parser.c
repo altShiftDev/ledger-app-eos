@@ -218,12 +218,15 @@ uint16_t parse_voteproducer(uint8_t *buffer, voteproducer_action_t *action, uint
     uint32_t num_producers = parse_varint32(buffer + offset, &bts);
     offset += bts;
 
+    action->num_producers = num_producers;
+    action->producers = buffer + offset;
+
     // producers
-    uint32_t i;
-    for (i = 0; i < num_producers; i++) {
-        //memcpy(&action->producers[i], buffer + offset, sizeof(uint64_t));
-        offset += 8;
-    }
+    // uint32_t i;
+    // for (i = 0; i < num_producers; i++) {
+    //     //memcpy(&action->producers[i], buffer + offset, sizeof(uint64_t));
+    //     //offset += 8;
+    // }
 
     offset = *(length);
     return offset;

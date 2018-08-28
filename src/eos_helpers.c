@@ -52,11 +52,12 @@ unsigned short eos_hash_and_encode_base58(unsigned char WIDE *in PLENGTH(inlen),
 
     cx_ripemd160_t ripemd;
     cx_ripemd160_init(&ripemd);
-    cx_hash(&ripemd.header, CX_LAST, in, inlen, checksumBuffer);
+    cx_hash(&ripemd.header, CX_LAST, in, inlen, checksumBuffer, 32);
     os_memmove(tmpBuffer + inlen, checksumBuffer, 4);
     
     unsigned int olen;
-    return b58enc(out, &olen, tmpBuffer, inlen + 4);
+    b58enc(out, &olen, tmpBuffer, inlen + 4);
+    return olen;
     //return eos_encode_base58(tmpBuffer, inlen + 4, out, outlen);
 }
 
@@ -92,9 +93,10 @@ unsigned short eos_signature_to_encoded_base58(unsigned char WIDE *signature PLE
 
     /* Should do below, but doesn't work for some reason, will fix */
     // os_memmove(tempBuffer + 65, keyType, 2);
-    // os_memmove(out, sigType, sizeof(sigType));
-    // sigLen = eos_hash_and_encode_base58(tempBuffer, sizeof(tempBuffer), out + sizeof(sigType), sizeof(out) - sizeof(sigType));
-    // sigLen += 7;
+    // os_memmove(out, sigType, 7);
+    // sigLen = 7;
+    // /*sigLen += */eos_hash_and_encode_base58(tempBuffer, 67, out + 7, sizeof(out) - 7);
+    // sigLen += strlen((unsigned char*)out);
     
     // this will end up returning compact signature
     sigLen = 65;

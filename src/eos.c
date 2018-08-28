@@ -123,7 +123,7 @@ void handle_sign_tx(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t dataLe
     }
 
     // hash transaction
-    cx_hash_sha256(ctx.req.tx.raw, ctx.req.tx.rawLength, ctx.req.tx.hash);
+    cx_hash_sha256(ctx.req.tx.raw, ctx.req.tx.rawLength, ctx.req.tx.hash, 32);
 
     ui_approve_tx_init();
 
@@ -174,7 +174,7 @@ unsigned int set_result_sign_tx(void) {
     MEMCLEAR(eos_signature);
 
     do {
-        signatureLength = cx_ecdsa_sign(&privateKey, CX_RND_TRNG | CX_LAST, CX_SHA256, ctx.req.tx.hash, 32, signature, &info);    
+        signatureLength = cx_ecdsa_sign(&privateKey, CX_RND_TRNG | CX_LAST, CX_SHA256, ctx.req.tx.hash, 32, signature, 100, &info);    
     }
     while (!eos_is_canonical(signature, signatureLength));
 

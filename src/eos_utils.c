@@ -170,8 +170,7 @@ uint32_t parse_name(uint64_t value, char* out) {
         tmp >>= (i == 0 ? 4 : 5);
     }
 
-    memcpy(out, rtrim(str, '.'), 13);
-    //out = rtrim(str, '.');
+    memcpy(out, rtrim(str, '.'), 12);
     return strlen(out);
 }   
 

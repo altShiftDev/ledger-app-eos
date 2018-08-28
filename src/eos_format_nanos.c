@@ -35,6 +35,8 @@ char opCaption[20];
 char detailCaption[20];
 char detailValue[89];
 
+uint32_t current_producer_index = 0;
+
 volatile format_function_t formatter;
 
 uint8_t decimals(uint64_t value) { 
@@ -94,7 +96,7 @@ void format_transfer_quantity(tx_context_t *txCtx) {
     char tmp[64];
     format_asset(&txCtx->opDetails.op.transfer.quantity, tmp, 64);
     print_summary(tmp,  detailValue, 6, 6);    
-    formatter = NULL;
+    formatter = NULL; //&format_confirm_transaction;
 }
 
 void format_transfer_to(tx_context_t *txCtx) {
@@ -273,12 +275,34 @@ void format_undelegatebw(tx_context_t *txCtx) {
     formatter = &format_undelegatebw_from;
 }
 
-void format_voteproducer_proxy(tx_context_t *txCtx) {
-    strcpy(detailCaption, " Set Proxy ");    
+void format_voteproducer_producers(tx_context_t *txCtx) {
+    strcpy(detailCaption, " Producers ");    
     char tmp[13];
-    /*uint32_t length = */parse_name(txCtx->opDetails.op.voteproducer.proxy, tmp);    
-    print_summary(tmp, detailValue, 6, 6);
-    formatter = NULL;
+
+    parse_name(*(uint64_t*)(txCtx->opDetails.op.voteproducer.producers + (current_producer_index * sizeof(uint64_t))), tmp);
+    print_summary(tmp, detailValue, 7, 7);        
+    current_producer_index++;
+
+    if (current_producer_index < txCtx->opDetails.op.voteproducer.num_producers) {
+        formatter = &format_voteproducer_producers;
+    }
+    else {
+        formatter = NULL;
+    }
+}
+
+void format_voteproducer_proxy(tx_context_t *txCtx) {
+    char tmp[13];
+    uint32_t length = parse_name(txCtx->opDetails.op.voteproducer.proxy, tmp);    
+
+    if (length > 0) {
+        strcpy(detailCaption, " Set Proxy ");            
+        print_summary(tmp, detailValue, 6, 6);
+        formatter = NULL;
+    }
+     else {
+        formatter = &format_voteproducer_producers;
+    }
 }
 
 void format_voteproducer_voter(tx_context_t *txCtx) {
@@ -286,10 +310,12 @@ void format_voteproducer_voter(tx_context_t *txCtx) {
     char tmp[13];
     /*uint32_t length = */parse_name(txCtx->opDetails.op.voteproducer.voter, tmp);    
     print_summary(tmp, detailValue, 6, 6);
+
     formatter = &format_voteproducer_proxy;
 }
 
 void format_voteproducer(tx_context_t *txCtx) {
+    current_producer_index = 0;
     formatter = &format_voteproducer_voter;
 }
 

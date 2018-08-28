@@ -306,16 +306,16 @@ typedef struct {
 typedef struct {
     uint64_t voter;
     uint64_t proxy;   
-    //uint32_t num_producers;    
-    //uint8_t *producers;
-    uint64_t producers;    
+    uint32_t num_producers;    
+    uint8_t *producers;
+    //uint64_t producers;    
 } voteproducer_action_t;
 
 typedef struct {
     uint64_t account;        
     uint64_t name;    
     uint8_t type;        
-    //authorization_t authorization[3];    
+    //authorization_t *authorizations;    
     union {
         transfer_action_t transfer;
         buyram_action_t buyram;
