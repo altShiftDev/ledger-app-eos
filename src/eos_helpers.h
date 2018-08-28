@@ -18,8 +18,8 @@
 #include "os.h"
 #include "cx.h"
 
-int eos_is_canonical(const unsigned char WIDE *sig PLENGTH(sig_len), 
-                           unsigned int sig_len);
+
+int eos_is_canonical(const unsigned char WIDE *sig PLENGTH(sig_len), unsigned int sig_len);
 
 unsigned short eos_hash_and_encode_base58(unsigned char WIDE *in PLENGTH(inlen), 
                                                 unsigned short inlen, 
@@ -32,7 +32,6 @@ unsigned short eos_signature_to_encoded_base58(unsigned char WIDE *in  PLENGTH(i
                                                unsigned short outlen,
                                                unsigned int *info PLENGTH(sizeof(unsigned int)));
 
-unsigned short eos_compress_public_key(cx_ecfp_public_key_t *publicKey,
-                                       uint8_t *out, uint32_t outlen);
+unsigned short eos_compress_public_key(cx_ecfp_public_key_t *publicKey, uint8_t *out, uint32_t outlen);
 
 

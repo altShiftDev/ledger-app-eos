@@ -306,7 +306,9 @@ typedef struct {
 typedef struct {
     uint64_t voter;
     uint64_t proxy;   
-    uint64_t producers;
+    //uint32_t num_producers;    
+    //uint8_t *producers;
+    uint64_t producers;    
 } voteproducer_action_t;
 
 typedef struct {
@@ -336,9 +338,6 @@ typedef struct {
 } tx_details_t;
 
 typedef struct {
-    #ifndef TEST
-    cx_ecfp_public_key_t publicKey;
-    #endif
     unsigned char address[50];
     uint8_t chainCode[32];
     bool getChaincode;    

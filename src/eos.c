@@ -24,7 +24,6 @@
 #include "eos_helpers.h"
 #include "eos_ux.h"
 
-
 uint8_t read_bip32(uint8_t *dataBuffer, uint32_t *bip32) {
     uint8_t bip32Len = dataBuffer[0];
     dataBuffer += 1;
@@ -38,23 +37,6 @@ uint8_t read_bip32(uint8_t *dataBuffer, uint32_t *bip32) {
     }
     return bip32Len;
 }
-
-void init_public_key(cx_ecfp_private_key_t *privateKey, cx_ecfp_public_key_t *publicKey, uint32_t *bip32, uint8_t bip32Len)  {
-    uint8_t privateKeyData[33];
-
-    os_perso_derive_node_bip32(CX_CURVE_256K1, bip32, bip32Len, privateKeyData, NULL);
-    cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, 32, privateKey);
-    cx_ecfp_generate_pair(CX_CURVE_256K1, publicKey, privateKey, 1);
-
-    os_memset(privateKeyData, 0, 33);    
-    eos_compress_public_key(publicKey, privateKeyData, 33);
-
-    os_memset(ctx.req.pk.address, 0, 50);    
-    eos_hash_and_encode_base58(privateKeyData, 33, ctx.req.pk.address, 50);
-
-    os_memset(privateKeyData, 0, 33);    
-}
-
 
 void handle_get_app_configuration(volatile unsigned int *tx) {
     G_io_apdu_buffer[0] = ctx.hashSigning;
@@ -76,11 +58,24 @@ void handle_get_public_key(uint8_t p1, uint8_t p2, uint8_t *dataBuffer, uint16_t
 
     uint32_t bip32[MAX_BIP32_LEN];
     uint8_t bip32Len = read_bip32(dataBuffer, bip32);
-
+    uint8_t privateKeyData[33];
+    uint8_t compressedKey[33];    
     cx_ecfp_private_key_t privateKey;
-    //cx_ecfp_public_key_t publicKey;    
-    //init_public_key(&privateKey, &publicKey, bip32, bip32Len);        
-    init_public_key(&privateKey, &ctx.req.pk.publicKey, bip32, bip32Len);    
+    cx_ecfp_public_key_t publicKey;        
+    
+    os_memset(privateKeyData, 0, 33);    
+    os_memset(compressedKey, 0, 33);    
+    os_memset(ctx.req.pk.address, 0, 50);    
+
+    os_perso_derive_node_bip32(CX_CURVE_256K1, bip32, bip32Len, privateKeyData, NULL);
+    cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, 32, &privateKey);
+    cx_ecfp_generate_pair(CX_CURVE_256K1, &publicKey, &privateKey, 1);    
+
+    eos_compress_public_key(&publicKey, compressedKey, 33);
+    eos_hash_and_encode_base58(compressedKey, 33, ctx.req.pk.address, 50);
+
+    os_memset(compressedKey, 0, 33);
+    os_memset(privateKeyData, 0, 33);    
     MEMCLEAR(privateKey);
 
     if (p2 & P2_CONFIRM) {
@@ -192,6 +187,7 @@ unsigned int set_result_sign_tx(void) {
 
 uint32_t set_result_get_public_key() {
     uint32_t tx = 0;
+    
     uint32_t addressLength = strlen((const char *)ctx.req.pk.address);
     tx += addressLength;
     os_memmove(G_io_apdu_buffer, ctx.req.pk.address, addressLength);

@@ -17,119 +17,172 @@
 
 #include "eos_base58.h"
 
-unsigned char const BASE58TABLE[] = {
-    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-    0xff, 0x0,  0x1,  0x2,  0x3,  0x4,  0x5,  0x6,  0x7,  0x8,  0xff, 0xff,
-    0xff, 0xff, 0xff, 0xff, 0xff, 0x9,  0xa,  0xb,  0xc,  0xd,  0xe,  0xf,
-    0x10, 0xff, 0x11, 0x12, 0x13, 0x14, 0x15, 0xff, 0x16, 0x17, 0x18, 0x19,
-    0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0xff, 0xff, 0xff, 0xff, 0xff,
-    0xff, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
-    0xff, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
-    0x37, 0x38, 0x39, 0xff, 0xff, 0xff, 0xff, 0xff
-  };
+// unsigned char const BASE58TABLE[] = {
+//     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+//     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+//     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+//     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+//     0xff, 0x0,  0x1,  0x2,  0x3,  0x4,  0x5,  0x6,  0x7,  0x8,  0xff, 0xff,
+//     0xff, 0xff, 0xff, 0xff, 0xff, 0x9,  0xa,  0xb,  0xc,  0xd,  0xe,  0xf,
+//     0x10, 0xff, 0x11, 0x12, 0x13, 0x14, 0x15, 0xff, 0x16, 0x17, 0x18, 0x19,
+//     0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0xff, 0xff, 0xff, 0xff, 0xff,
+//     0xff, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+//     0xff, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36,
+//     0x37, 0x38, 0x39, 0xff, 0xff, 0xff, 0xff, 0xff
+//   };
 
-unsigned char const BASE58ALPHABET[] = {
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
-    'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
-    'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm',
-    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-  };
+// unsigned char const BASE58ALPHABET[] = {
+//     '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+//     'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+//     'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm',
+//     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+//   };
 
 
-unsigned char eos_decode_base58(unsigned char WIDE *in, unsigned char length,
-                                unsigned char *out, unsigned char maxoutlen) {
-    unsigned char tmp[164];
-    unsigned char buffer[164];
-    unsigned char i;
-    unsigned char j;
-    unsigned char startAt;
-    unsigned char zeroCount = 0;
-    if (length > sizeof(tmp)) {
-        THROW(INVALID_PARAMETER);
-    }
-    os_memmove(tmp, in, length);
-    for (i = 0; i < length; i++) {
-        if (in[i] > 128) {
-            THROW(EXCEPTION);
-        }
-        tmp[i] = BASE58TABLE[in[i]];
-        if (tmp[i] == 0xff) {
-            THROW(EXCEPTION);
-        }
-    }
-    while ((zeroCount < length) && (tmp[zeroCount] == 0)) {
-        ++zeroCount;
-    }
-    j = length;
-    startAt = zeroCount;
-    while (startAt < length) {
-        unsigned short remainder = 0;
-        unsigned char divLoop;
-        for (divLoop = startAt; divLoop < length; divLoop++) {
-            unsigned short digit256 = (unsigned short)(tmp[divLoop] & 0xff);
-            unsigned short tmpDiv = remainder * 58 + digit256;
-            tmp[divLoop] = (unsigned char)(tmpDiv / 256);
-            remainder = (tmpDiv % 256);
-        }
-        if (tmp[startAt] == 0) {
-            ++startAt;
-        }
-        buffer[--j] = (unsigned char)remainder;
-    }
-    while ((j < length) && (buffer[j] == 0)) {
-        ++j;
-    }
-    length = length - (j - zeroCount);
-    if (maxoutlen < length) {
-        THROW(EXCEPTION_OVERFLOW);
-    }
-    os_memmove(out, buffer + j - zeroCount, length);
-    return length;
-}
+// unsigned char eos_decode_base58(unsigned char WIDE *in, unsigned char length,
+//                                 unsigned char *out, unsigned char maxoutlen) {
+//     unsigned char tmp[164];
+//     unsigned char buffer[164];
+//     unsigned char i;
+//     unsigned char j;
+//     unsigned char startAt;
+//     unsigned char zeroCount = 0;
+//     if (length > sizeof(tmp)) {
+//         THROW(INVALID_PARAMETER);
+//     }
+//     os_memmove(tmp, in, length);
+//     for (i = 0; i < length; i++) {
+//         if (in[i] > 128) {
+//             THROW(EXCEPTION);
+//         }
+//         tmp[i] = BASE58TABLE[in[i]];
+//         if (tmp[i] == 0xff) {
+//             THROW(EXCEPTION);
+//         }
+//     }
+//     while ((zeroCount < length) && (tmp[zeroCount] == 0)) {
+//         ++zeroCount;
+//     }
+//     j = length;
+//     startAt = zeroCount;
+//     while (startAt < length) {
+//         unsigned short remainder = 0;
+//         unsigned char divLoop;
+//         for (divLoop = startAt; divLoop < length; divLoop++) {
+//             unsigned short digit256 = (unsigned short)(tmp[divLoop] & 0xff);
+//             unsigned short tmpDiv = remainder * 58 + digit256;
+//             tmp[divLoop] = (unsigned char)(tmpDiv / 256);
+//             remainder = (tmpDiv % 256);
+//         }
+//         if (tmp[startAt] == 0) {
+//             ++startAt;
+//         }
+//         buffer[--j] = (unsigned char)remainder;
+//     }
+//     while ((j < length) && (buffer[j] == 0)) {
+//         ++j;
+//     }
+//     length = length - (j - zeroCount);
+//     if (maxoutlen < length) {
+//         THROW(EXCEPTION_OVERFLOW);
+//     }
+//     os_memmove(out, buffer + j - zeroCount, length);
+//     return length;
+// }
 
-unsigned char eos_encode_base58(unsigned char WIDE *in, unsigned char length,
-                                unsigned char *out, unsigned char maxoutlen) {
-    unsigned char tmp[164];
-    unsigned char buffer[164];
-    unsigned char j;
-    unsigned char startAt;
-    unsigned char zeroCount = 0;
-    if (length > sizeof(tmp)) {
-        THROW(INVALID_PARAMETER);
-    }
-    os_memmove(tmp, in, length);
-    while ((zeroCount < length) && (tmp[zeroCount] == 0)) {
-        ++zeroCount;
-    }
-    j = 2 * length;
-    startAt = zeroCount;
-    while (startAt < length) {
-        unsigned short remainder = 0;
-        unsigned char divLoop;
-        for (divLoop = startAt; divLoop < length; divLoop++) {
-            unsigned short digit256 = (unsigned short)(tmp[divLoop] & 0xff);
-            unsigned short tmpDiv = remainder * 256 + digit256;
-            tmp[divLoop] = (unsigned char)(tmpDiv / 58);
-            remainder = (tmpDiv % 58);
-        }
-        if (tmp[startAt] == 0) {
-            ++startAt;
-        }
-        buffer[--j] = (unsigned char)BASE58ALPHABET[remainder];
-    }
-    while ((j < (2 * length)) && (buffer[j] == BASE58ALPHABET[0])) {
-        ++j;
-    }
-    while (zeroCount-- > 0) {
-        buffer[--j] = BASE58ALPHABET[0];
-    }
-    length = 2 * length - j;
-    if (maxoutlen < length) {
-        THROW(EXCEPTION_OVERFLOW);
-    }
-    os_memmove(out, (buffer + j), length);
-    return length;
+// unsigned char eos_encode_base58(unsigned char WIDE *in, unsigned char length,
+//                                 unsigned char *out, unsigned char maxoutlen) {
+//     unsigned char tmp[164];
+//     unsigned char buffer[164];
+//     unsigned char j;
+//     unsigned char startAt;
+//     unsigned char zeroCount = 0;
+//     if (length > sizeof(tmp)) {
+//         THROW(INVALID_PARAMETER);
+//     }
+//     os_memmove(tmp, in, length);
+//     while ((zeroCount < length) && (tmp[zeroCount] == 0)) {
+//         ++zeroCount;
+//     }
+//     j = 2 * length;
+//     startAt = zeroCount;
+//     while (startAt < length) {
+//         unsigned short remainder = 0;
+//         unsigned char divLoop;
+//         for (divLoop = startAt; divLoop < length; divLoop++) {
+//             unsigned short digit256 = (unsigned short)(tmp[divLoop] & 0xff);
+//             unsigned short tmpDiv = remainder * 256 + digit256;
+//             tmp[divLoop] = (unsigned char)(tmpDiv / 58);
+//             remainder = (tmpDiv % 58);
+//         }
+//         if (tmp[startAt] == 0) {
+//             ++startAt;
+//         }
+//         buffer[--j] = (unsigned char)BASE58ALPHABET[remainder];
+//     }
+//     while ((j < (2 * length)) && (buffer[j] == BASE58ALPHABET[0])) {
+//         ++j;
+//     }
+//     while (zeroCount-- > 0) {
+//         buffer[--j] = BASE58ALPHABET[0];
+//     }
+//     length = 2 * length - j;
+//     if (maxoutlen < length) {
+//         THROW(EXCEPTION_OVERFLOW);
+//     }
+//     os_memmove(out, (buffer + j), length);
+//     return length;
+// }
+
+
+
+/*
+ * adapted from https://github.com/bitcoin/libbase58/blob/master/base58.c
+ */
+static const char b58digits_ordered[] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+int b58enc(unsigned char WIDE *b58, size_t *b58sz, const void *data, size_t binsz)
+{
+	const uint8_t *bin = data;
+	int carry;
+	size_t i, j, high, zcount = 0;
+	size_t size;
+	
+	while (zcount < binsz && !bin[zcount])
+		++zcount;
+	
+	size = (binsz - zcount) * 138 / 100 + 1;
+	uint8_t buf[size];
+	os_memset(buf, 0, size);
+	
+	for (i = zcount, high = size - 1; i < binsz; ++i, high = j)
+	{
+		for (carry = bin[i], j = size - 1; (j > high) || carry; --j)
+		{
+			carry += 256 * buf[j];
+			buf[j] = carry % 58;
+			carry /= 58;
+			if (!j) {
+				// Otherwise j wraps to maxint which is > high
+				break;
+			}
+		}
+	}
+	
+	for (j = 0; j < size && !buf[j]; ++j);
+	
+	if (*b58sz <= zcount + size - j)
+	{
+		*b58sz = zcount + size - j + 1;
+		return 0;
+	}
+	
+	if (zcount)
+		os_memset(b58, '1', zcount);
+	for (i = zcount; j < size; ++i, ++j)
+		b58[i] = b58digits_ordered[buf[j]];
+	b58[i] = '\0';
+	*b58sz = i + 1;
+	
+	return 1;
 }

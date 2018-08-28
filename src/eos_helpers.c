@@ -19,6 +19,7 @@
 #include "eos_base58.h"
 #include <stdbool.h>
 
+
 int eos_is_canonical(const unsigned char WIDE *sig PLENGTH(sig_len), unsigned int sig_len) {
     uint8_t rLength, sLength, rOffset, sOffset;
     unsigned char r[33];
@@ -46,13 +47,17 @@ unsigned short eos_hash_and_encode_base58(unsigned char WIDE *in PLENGTH(inlen),
                                                 unsigned short outlen) {
     unsigned char tmpBuffer[inlen + 4];
     unsigned char checksumBuffer[32];
-    cx_ripemd160_t ripemd;
 
     os_memmove(tmpBuffer, in, inlen);
+
+    cx_ripemd160_t ripemd;
     cx_ripemd160_init(&ripemd);
     cx_hash(&ripemd.header, CX_LAST, in, inlen, checksumBuffer);
     os_memmove(tmpBuffer + inlen, checksumBuffer, 4);
-    return eos_encode_base58(tmpBuffer, inlen + 4, out, outlen);
+    
+    unsigned int olen;
+    return b58enc(out, &olen, tmpBuffer, inlen + 4);
+    //return eos_encode_base58(tmpBuffer, inlen + 4, out, outlen);
 }
 
 unsigned short eos_signature_to_encoded_base58(unsigned char WIDE *signature PLENGTH(signaturelen),
