@@ -279,9 +279,11 @@ void format_voteproducer_producers(tx_context_t *txCtx) {
     strcpy(detailCaption, " Producers ");    
     char tmp[13];
 
-    parse_name(*(uint64_t*)(txCtx->opDetails.op.voteproducer.producers + (current_producer_index * sizeof(uint64_t))), tmp);
-    print_summary(tmp, detailValue, 7, 7);        
-    current_producer_index++;
+    uint64_t producer;
+    memcpy(&producer, txCtx->opDetails.op.voteproducer.producers + (current_producer_index * 8), 8);
+    parse_name(producer, tmp);
+    print_summary(tmp, detailValue, 6, 6);        
+    current_producer_index += 1;
 
     if (current_producer_index < txCtx->opDetails.op.voteproducer.num_producers) {
         formatter = &format_voteproducer_producers;
@@ -292,15 +294,21 @@ void format_voteproducer_producers(tx_context_t *txCtx) {
 }
 
 void format_voteproducer_proxy(tx_context_t *txCtx) {
-    char tmp[13];
-    uint32_t length = parse_name(txCtx->opDetails.op.voteproducer.proxy, tmp);    
+    strcpy(detailCaption, " Set Proxy ");    
+    char tmp[13];    
+    parse_name(txCtx->opDetails.op.voteproducer.proxy, tmp);       
+    print_summary(tmp, detailValue, 6, 6);
+    formatter = NULL;
+}
 
-    if (length > 0) {
-        strcpy(detailCaption, " Set Proxy ");            
-        print_summary(tmp, detailValue, 6, 6);
-        formatter = NULL;
+void setproxy_or_producers(tx_context_t *txCtx) {
+    char tmp[13];
+    parse_name(txCtx->opDetails.op.voteproducer.proxy, tmp); 
+
+    if (tmp[0] != '\0') {
+        formatter = &format_voteproducer_proxy;
     }
-     else {
+    else {
         formatter = &format_voteproducer_producers;
     }
 }
@@ -310,8 +318,7 @@ void format_voteproducer_voter(tx_context_t *txCtx) {
     char tmp[13];
     /*uint32_t length = */parse_name(txCtx->opDetails.op.voteproducer.voter, tmp);    
     print_summary(tmp, detailValue, 6, 6);
-
-    formatter = &format_voteproducer_proxy;
+    setproxy_or_producers(txCtx);
 }
 
 void format_voteproducer(tx_context_t *txCtx) {
