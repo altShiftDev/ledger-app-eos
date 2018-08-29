@@ -17,6 +17,7 @@
 #ifndef TEST
 #include "bolos_target.h"
 #include "os.h"
+#include "eos_helpers.h"
 #endif
 #include "eos_types.h"
 
@@ -90,7 +91,9 @@ void format_asset(asset_t* asset, char* out, uint8_t outlen) {
     strcpy(out + strlen(out), sym_name);
 }
 
-
+/* 
+ * formatting for transfer action
+ */
 void format_transfer_quantity(tx_context_t *txCtx) {
     strcpy(detailCaption, " Quantity "); 
     char tmp[64];
@@ -119,6 +122,9 @@ void format_transfer(tx_context_t *txCtx) {
     formatter = &format_transfer_from;
 }
 
+/* 
+ * formatting for buy ram action
+ */
 void format_buyram_quant(tx_context_t *txCtx) {
     strcpy(detailCaption, " Quantity ");    
     char tmp[64];
@@ -147,6 +153,9 @@ void format_buyram(tx_context_t *txCtx) {
     formatter = format_buyram_payer;
 }
 
+/* 
+ * formatting for buy ram bytes action
+ */
 void format_buyrambytes_bytes(tx_context_t *txCtx) {
     strcpy(detailCaption, "  Bytes  ");    
     char tmp[64];
@@ -175,6 +184,9 @@ void format_buyrambytes(tx_context_t *txCtx) {
     formatter = &format_buyrambytes_payer;
 }
 
+/* 
+ * formatting for sell ram action
+ */
 void format_sellram_bytes(tx_context_t *txCtx) {
     strcpy(detailCaption, "  Bytes  ");    
     char tmp[64];
@@ -195,6 +207,9 @@ void format_sellram(tx_context_t *txCtx) {
     formatter = &format_sellram_account;
 }
 
+/* 
+ * formatting for delegate bw action
+ */
 void format_delegatebw_transfer(tx_context_t *txCtx) {
     strcpy(detailCaption, " Transfer ");    
     char tmp[64];
@@ -239,6 +254,9 @@ void format_delegatebw(tx_context_t *txCtx) {
     formatter = &format_delegatebw_from;
 }
 
+/* 
+ * formatting for undelegate action
+ */
 void format_undelegatebw_stake_cpu_quantity(tx_context_t *txCtx) {
     strcpy(detailCaption, "   CPU   ");    
     char tmp[64];
@@ -275,6 +293,9 @@ void format_undelegatebw(tx_context_t *txCtx) {
     formatter = &format_undelegatebw_from;
 }
 
+/* 
+ * formatting for vote producer action
+ */
 void format_voteproducer_producers(tx_context_t *txCtx) {
     strcpy(detailCaption, " Producers ");    
     char tmp[13];
@@ -326,14 +347,67 @@ void format_voteproducer(tx_context_t *txCtx) {
     formatter = &format_voteproducer_voter;
 }
 
-const format_function_t formatters[7] = {
+
+/* 
+ * formatting for new account action
+ */
+void format_newaccount_active(tx_context_t *txCtx) {
+    strcpy(detailCaption, "  Active  ");    
+    char tmp[64];
+#ifdef TEST
+    print_public_key(txCtx->opDetails.op.newaccount.active.public_key, detailValue, 8, 8 );
+#else
+    eos_hash_and_encode_base58(txCtx->opDetails.op.newaccount.active.public_key, 33, (unsigned char*)tmp, 64);
+    print_summary(tmp, detailValue, 6, 6);
+#endif    
+    formatter = NULL;
+}
+
+void format_newaccount_owner(tx_context_t *txCtx) {
+    strcpy(detailCaption, "  Owner   ");    
+    char tmp[64];
+#ifdef TEST
+    print_public_key(txCtx->opDetails.op.newaccount.owner.public_key, detailValue, 8, 8 );
+#else
+    eos_hash_and_encode_base58(txCtx->opDetails.op.newaccount.owner.public_key, 33, (unsigned char*)tmp, 64);
+    print_summary(tmp, detailValue, 6, 6);
+#endif    
+    formatter = &format_newaccount_active;
+}
+
+void format_newaccount_name(tx_context_t *txCtx) {
+    strcpy(detailCaption, "  Name   ");    
+    char tmp[13];
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.newaccount.name, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
+    formatter = &format_newaccount_owner;
+}
+
+void format_transfer_creator(tx_context_t *txCtx) {
+    strcpy(detailCaption, " New Account ");    
+    char tmp[13];
+    /*uint32_t length = */parse_name(txCtx->opDetails.op.newaccount.creator, tmp);    
+    print_summary(tmp, detailValue, 6, 6);
+    formatter = &format_newaccount_name;
+}
+
+void format_newaccount(tx_context_t *txCtx) {
+    formatter = &format_transfer_creator;
+}
+
+
+/* 
+ * formatting for full transaction
+ */
+const format_function_t formatters[8] = {
     &format_transfer,
     &format_buyram,
     &format_buyrambytes,    
     &format_sellram,
     &format_delegatebw,
     &format_undelegatebw,
-    &format_voteproducer
+    &format_voteproducer,
+    &format_newaccount
 };
 
 void format_confirm_operation(tx_context_t *txCtx) {
@@ -356,6 +430,10 @@ void format_confirm_transaction(tx_context_t *txCtx) {
     formatter = &format_confirm_operation;    
 }
 
+
+/* 
+ * formatting for hashed transaction
+ */
 void format_confirm_hash_detail(tx_context_t *txCtx) {
     strcpy(detailCaption, "Hash");
     print_binary_summary(txCtx->hash, detailValue, 32);
@@ -363,6 +441,7 @@ void format_confirm_hash_detail(tx_context_t *txCtx) {
 }
 
 void format_confirm_hash_warning(tx_context_t *txCtx) {
+    memset(detailValue, 0, 89);    
     strcpy(detailCaption, "WARNING");
     strcpy(detailValue, "No details available");
     formatter = &format_confirm_hash_detail;

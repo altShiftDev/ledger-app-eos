@@ -311,6 +311,47 @@ typedef struct {
     //uint64_t producers;    
 } voteproducer_action_t;
 
+/* 
+ * New account structs
+ */
+// typedef struct {
+//     uint64_t account_name;
+//     uint64_t permission;
+// } permission_level_t;
+
+// typedef struct {
+//     uint32_t wait_sec;
+//     uint16_t weight;
+// } wait_weight_t;
+
+// typedef struct {
+//     permission_level_t permission;
+//     uint16_t weight;
+// } permission_level_weight_t;
+
+// typedef struct {
+//     char public_key[33];
+//     uint16_t weight;
+// } key_weight_t;
+
+typedef struct {
+    uint32_t threshold;
+    //uint32_t num_key_weights;
+    //key_weight_t key_weight;
+    uint8_t public_key[33];
+    //uint32_t num_accounts;    
+    //permission_level_weight_t *accounts;
+    //uint32_t num_waits;        
+    //wait_weight_t *waits;
+} authority_t;
+
+typedef struct {
+    uint64_t creator;
+    uint64_t name;
+    authority_t owner;   
+    authority_t active;       
+} newaccount_action_t;
+
 typedef struct {
     uint64_t account;        
     uint64_t name;    
@@ -324,6 +365,7 @@ typedef struct {
         delegatebw_action_t delegatebw;
         undelegatebw_action_t undelegatebw;
         voteproducer_action_t voteproducer;
+        newaccount_action_t newaccount;
     } op;
 } operation_details_t;
 

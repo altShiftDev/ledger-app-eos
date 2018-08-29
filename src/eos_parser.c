@@ -34,7 +34,7 @@ static const uint64_t ACTION_SELLRAM = 0xc2a31b9a40000000;
 static const uint64_t ACTION_DELEGATEBW = 0x4aa2a61b2a3f0000;
 static const uint64_t ACTION_UNDELEGATEBW = 0xd4d2a8a986ca8fc0;
 static const uint64_t ACTION_VOTEPRODUCER = 0xdd32aade89d21570;
-
+static const uint64_t ACTION_NEWACCOUNT = 0x9ab864229a9e4000;
 
 uint16_t parse_authorization(uint8_t *buffer, int i) {
     uint16_t offset = 0;   
@@ -55,7 +55,6 @@ uint16_t parse_asset(uint8_t *buffer, asset_t* asset) {
 
     // amount
     memcpy(&asset->amount, buffer + offset, sizeof(int64_t));    
-    //asset->amount = read_uint64_block(buffer + offset);    
     offset += 8;
 
     //symbol
@@ -65,22 +64,15 @@ uint16_t parse_asset(uint8_t *buffer, asset_t* asset) {
     return offset;
 }
 
-//     "from": "account_name",
-//     "to": "account_name",
-//     "quantity": "asset",
-//     "memo": "string"
 uint16_t parse_transfer(uint8_t *buffer, transfer_action_t *action, uint32_t* length) {
     uint16_t offset = 0;
-    //unsigned char bts;
 
     // from
     memcpy(&action->from, buffer + offset, sizeof(uint64_t));    
-    //transfer->from = read_uint64_block(buffer + offset);
     offset += 8;
 
     // to
     memcpy(&action->to, buffer + offset, sizeof(uint64_t));
-    //transfer->to = read_uint64_block(buffer + offset);
     offset += 8;
 
     offset += parse_asset(buffer + offset, &action->quantity);
@@ -91,9 +83,6 @@ uint16_t parse_transfer(uint8_t *buffer, transfer_action_t *action, uint32_t* le
     return offset;
 }
 
-//     "payer": "account_name",
-//     "receiver": "account_name",
-//     "quant": "asset"
 uint16_t parse_buyram(uint8_t *buffer, buyram_action_t *action, uint32_t* length) {
     uint16_t offset = 0;
     // payer
@@ -110,9 +99,6 @@ uint16_t parse_buyram(uint8_t *buffer, buyram_action_t *action, uint32_t* length
     return offset;
 }
 
-//     "payer": "account_name",
-//     "receiver": "account_name",
-//     "bytes": "uint32"
 uint16_t parse_buyrambytes(uint8_t *buffer, buyrambytes_action_t *action, uint32_t* length) {
     uint16_t offset = 0;
     // payer
@@ -131,8 +117,6 @@ uint16_t parse_buyrambytes(uint8_t *buffer, buyrambytes_action_t *action, uint32
     return offset;
 }
 
-//     "account": "account_name",
-//     "bytes": "uint64"
 uint16_t parse_sellram(uint8_t *buffer, sellram_action_t *action, uint32_t* length) {
     uint16_t offset = 0;
     // to
@@ -147,11 +131,6 @@ uint16_t parse_sellram(uint8_t *buffer, sellram_action_t *action, uint32_t* leng
     return offset;
 }
 
-//     "from": "account_name",
-//     "receiver": "account_name",
-//     "stake_net_quantity": "asset",
-//     "stake_cpu_quantity": "asset",
-//     "transfer": "bool"
 uint16_t parse_delegatebw(uint8_t *buffer, delegatebw_action_t *action, uint32_t* length) {
     uint16_t offset = 0;
     // from
@@ -175,10 +154,6 @@ uint16_t parse_delegatebw(uint8_t *buffer, delegatebw_action_t *action, uint32_t
     return offset;
 }
 
-//     "from": "account_name",
-//     "receiver": "account_name",
-//     "unstake_net_quantity": "asset",
-//     "unstake_cpu_quantity": "asset"
 uint16_t parse_undelegatebw(uint8_t *buffer, undelegatebw_action_t *action, uint32_t* length) {
     uint16_t offset = 0;
     // from
@@ -199,9 +174,6 @@ uint16_t parse_undelegatebw(uint8_t *buffer, undelegatebw_action_t *action, uint
     return offset;
 }
 
-//     "voter": "account_name",
-//     "proxy": "account_name",
-//     "producers": "account_name[]"
 uint16_t parse_voteproducer(uint8_t *buffer, voteproducer_action_t *action, uint32_t* length) {
     uint16_t offset = 0;
     unsigned char bts;
@@ -216,17 +188,119 @@ uint16_t parse_voteproducer(uint8_t *buffer, voteproducer_action_t *action, uint
 
     // length of producers
     uint32_t num_producers = parse_varint32(buffer + offset, &bts);
-    offset += bts;
-
     action->num_producers = num_producers;
+    offset += bts;    
+
+    // set to first producer
     action->producers = buffer + offset;
 
-    // producers
-    // uint32_t i;
-    // for (i = 0; i < num_producers; i++) {
-    //     //memcpy(&action->producers[i], buffer + offset, sizeof(uint64_t));
-    //     //offset += 8;
-    // }
+    offset = *(length);
+    return offset;
+}
+
+// typedef struct {
+//     uint64_t account_name;
+//     uint64_t permission;
+// } permission_level_t;
+
+// typedef struct {
+//     uint32_t wait_sec;
+//     uint16_t weight;
+// } wait_weight_t;
+
+// typedef struct {
+//     permission_level_t permission;
+//     uint16_t weight;
+// } permission_level_weight_t;
+
+// typedef struct {
+//     uint8_t public_key[33];
+//     uint16_t weight;
+// } key_weight_t;
+
+// typedef struct {
+//     uint32_t threshold;
+//     key_weight_t *key_weights;
+//     permission_level_weight_t *accounts;
+//     wait_weight_t *waits;
+// } authority_t;
+
+// typedef struct {
+//     uint64_t creator;
+//     uint64_t name;
+//     authority_t owner;   
+//     authority_t active;       
+// } newaccount_action_t;
+
+// uint16_t parse_key_weight(uint8_t *buffer, authority_t* authority, uint32_t num_key_weights) {
+
+//     // only parse out public key for displaying
+
+//     uint16_t offset = 0;  
+//     memcpy(authority->public_key, buffer + offset, 33);
+//     offset += 35;
+//     return offset;
+// }
+
+uint16_t parse_authority(uint8_t *buffer, authority_t* authority) {
+    uint16_t offset = 0;   
+    unsigned char bts;    
+
+    // amount
+    memcpy(&authority->threshold, buffer + offset, sizeof(int32_t));    
+    offset += 4;
+
+    //length of key_weights
+    uint32_t num_key_weights = parse_varint32(buffer + offset, &bts);
+    //authority->num_key_weights = num_key_weights;
+    offset += bts;  
+
+    // We will only parse out the first key weight into public key for displaying
+    //parse_key_weight(buffer + offset, authority, num_key_weights);
+    /*uint32_t pos = */parse_varint32(buffer + offset, &bts);
+    offset += bts;  
+
+    memcpy(authority->public_key, buffer + offset, 33);
+
+    // 35 is size of key_weight
+    //offset += num_key_weights * 35;
+    offset += 35;    
+
+    //length of accounts
+    uint32_t num_accounts = parse_varint32(buffer + offset, &bts);
+    //authority->num_accounts = num_accounts;
+    offset += bts;    
+
+    // 18 is size of account
+    offset += num_accounts * 18;
+
+    //length of waits
+    uint32_t num_waits = parse_varint32(buffer + offset, &bts);
+    //authority->num_waits = num_waits;
+    offset += bts;   
+
+    // 6 is size of wait
+    offset += num_waits * 6;
+
+    return offset;
+}
+
+uint16_t parse_newaccount(uint8_t *buffer, newaccount_action_t *action, uint32_t* length) {
+    uint16_t offset = 0;
+
+    // creator
+    memcpy(&action->creator, buffer + offset, sizeof(uint64_t));    
+    offset += 8;
+
+    // name
+    memcpy(&action->name, buffer + offset, sizeof(uint64_t));    
+    offset += 8;
+
+    // owner
+    offset += parse_authority(buffer + offset, &action->owner);
+
+    // active
+    offset += parse_authority(buffer + offset, &action->active);
 
     offset = *(length);
     return offset;
@@ -262,7 +336,7 @@ uint16_t parse_op(uint8_t *buffer, operation_details_t *opDetails) {
     printf("action: %" PRIx64 "\n", opDetails->name);
     #endif
 
-    // parse data based on "name" field
+    // parse action based on "name" field
     if (opDetails->name == ACTION_TRANSFER) {
         opDetails->type = 0;
         offset += parse_transfer(buffer + offset, &opDetails->op.transfer, &dataSize);
@@ -298,6 +372,11 @@ uint16_t parse_op(uint8_t *buffer, operation_details_t *opDetails) {
         offset += parse_voteproducer(buffer + offset, &opDetails->op.voteproducer, &dataSize);
         return offset;
     }
+    else if (opDetails->name == ACTION_NEWACCOUNT) {
+        opDetails->type = 7;        
+        offset += parse_newaccount(buffer + offset, &opDetails->op.newaccount, &dataSize);
+        return offset;
+    }
     else {
         THROW(0x6900); // unknown action type
         return offset;        
@@ -329,6 +408,7 @@ void parse_tx(uint8_t *buffer, tx_context_t *txCtx) {
 
         // skip context free actions (not yet supported)
         // context free actions length (varint32)
+        // should be empty so 0
         parse_varint32(buffer + offset, &bts);
         offset += bts;
 

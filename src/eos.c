@@ -159,9 +159,9 @@ void handle_keep_alive(volatile unsigned int *flags) {
 
 unsigned int set_result_sign_tx(void) {
     uint8_t privateKeyData[32];
-    uint8_t signature[100];
+    uint8_t signature[164];
     uint8_t signatureLength;
-    uint8_t eos_signature[100];
+    uint8_t eos_signature[164];
     cx_ecfp_private_key_t privateKey;
     uint32_t tx = 0;
     unsigned int info = 0;
@@ -174,13 +174,13 @@ unsigned int set_result_sign_tx(void) {
     MEMCLEAR(eos_signature);
 
     do {
-        signatureLength = cx_ecdsa_sign(&privateKey, CX_RND_TRNG | CX_LAST, CX_SHA256, ctx.req.tx.hash, 32, signature, 100, &info);    
+        signatureLength = cx_ecdsa_sign(&privateKey, CX_RND_TRNG | CX_LAST, CX_SHA256, ctx.req.tx.hash, 32, signature, 164, &info);    
     }
     while (!eos_is_canonical(signature, signatureLength));
 
     MEMCLEAR(privateKey);
 
-    tx = eos_signature_to_encoded_base58(signature, signatureLength, eos_signature, 100, &info);
+    tx = eos_signature_to_encoded_base58(signature, signatureLength, eos_signature, 164, &info);
     os_memmove(G_io_apdu_buffer, eos_signature, tx);
     return tx;
 }

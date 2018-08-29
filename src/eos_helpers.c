@@ -20,6 +20,9 @@
 #include <stdbool.h>
 
 
+/*
+ * Checks if signature is cononical for EOS
+ */
 int eos_is_canonical(const unsigned char WIDE *sig PLENGTH(sig_len), unsigned int sig_len) {
     uint8_t rLength, sLength, rOffset, sOffset;
     unsigned char r[33];
@@ -41,6 +44,9 @@ int eos_is_canonical(const unsigned char WIDE *sig PLENGTH(sig_len), unsigned in
     return canonical;
  }
 
+/*
+ *  Hashes and encodes unsigned char array to base58
+ */
 unsigned short eos_hash_and_encode_base58(unsigned char WIDE *in PLENGTH(inlen),
                                                 unsigned short inlen,
                                                 unsigned char *out PLENGTH(outlen) ,
@@ -58,25 +64,30 @@ unsigned short eos_hash_and_encode_base58(unsigned char WIDE *in PLENGTH(inlen),
     unsigned int olen;
     b58enc(out, &olen, tmpBuffer, inlen + 4);
     return olen;
-    //return eos_encode_base58(tmpBuffer, inlen + 4, out, outlen);
 }
 
+/*
+ *  encodes signature
+ */
 unsigned short eos_signature_to_encoded_base58(unsigned char WIDE *signature PLENGTH(signaturelen),
                                                unsigned short signaturelen,
                                                unsigned char *out PLENGTH(outlen),
                                                unsigned short outlen,
                                                unsigned int *info PLENGTH(sizeof(unsigned int))) {
     unsigned char tempBuffer[65 + 2];
+    //
     //unsigned char sigBuffer[164];
     //unsigned char keyType[2] = "K1";
     //unsigned char sigType[7] = "SIG_K1_";   
+    //
     uint8_t rLength;
     uint8_t sLength;
     uint8_t rOffset;
     uint8_t sOffset;
     uint32_t sigLen = 0; 
 
-    os_memset(tempBuffer, 0, sizeof(tempBuffer)); 
+    os_memset(tempBuffer, 0, 67); 
+    os_memset(out, 0, outlen);     
 
     tempBuffer[0] = 27;
     if ((*info) & CX_ECCINFO_PARITY_ODD) {
@@ -92,16 +103,16 @@ unsigned short eos_signature_to_encoded_base58(unsigned char WIDE *signature PLE
     os_memmove(tempBuffer + 33, signature + 4 + rLength + 2 + sOffset, 32);
 
     /* Should do below, but doesn't work for some reason, will fix */
-    // os_memmove(tempBuffer + 65, keyType, 2);
-    // os_memmove(out, sigType, 7);
-    // sigLen = 7;
-    // /*sigLen += */eos_hash_and_encode_base58(tempBuffer, 67, out + 7, sizeof(out) - 7);
-    // sigLen += strlen((unsigned char*)out);
-    
-    // this will end up returning compact signature
+    // os_memmove(tempBuffer + 65, "K1", 2);
+    // sigLen = eos_hash_and_encode_base58(tempBuffer, 67, out, outlen);
+    // os_memmove(out + 7, out, sigLen + 7);    
+    // os_memmove(out, "SIG_K1_", 7);
+    // sigLen += 7;        
+
+    // this will end up returning compact signature    
     sigLen = 65;
     os_memmove(out, tempBuffer, 65);
-
+    
     return sigLen;
 }
 

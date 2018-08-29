@@ -18,10 +18,4 @@
 #include "os.h"
 #include "cx.h"
 
-// unsigned char eos_decode_base58(unsigned char WIDE *in, unsigned char length,
-//                                 unsigned char *out, unsigned char maxoutlen);
-
-// unsigned char eos_encode_base58(unsigned char WIDE *in, unsigned char length,
-//                                 unsigned char *out, unsigned char maxoutlen);
-
 int b58enc(unsigned char WIDE *b58, size_t *b58sz, const void *data, size_t binsz);                                
