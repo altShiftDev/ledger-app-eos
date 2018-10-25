@@ -36,6 +36,10 @@ static const uint64_t ACTION_UNDELEGATEBW = 0xd4d2a8a986ca8fc0;
 static const uint64_t ACTION_VOTEPRODUCER = 0xdd32aade89d21570;
 static const uint64_t ACTION_NEWACCOUNT = 0x9ab864229a9e4000;
 
+// Need to get constants for these
+static const uint64_t ACTION_PREPARE = 0x9ab864229a9e4000;
+static const uint64_t ACTION_ACTIVATE = 0x9ab864229a9e4000;
+
 uint16_t parse_authorization(uint8_t *buffer, int i) {
     uint16_t offset = 0;   
 
@@ -75,9 +79,29 @@ uint16_t parse_transfer(uint8_t *buffer, transfer_action_t *action, uint32_t* le
     memcpy(&action->to, buffer + offset, sizeof(uint64_t));
     offset += 8;
 
-    offset += parse_asset(buffer + offset, &action->quantity);
+    //parse_asset
+    uint8_t asset_length = parse_asset(buffer + offset, &action->quantity);
+    offset += asset_length;
 
     //memo -- should we show?
+    memcpy(&action->memo, buffer + offset, sizeof(uint64_t));
+//    offset += *(length) - (16 + asset_length);
+
+    offset = *(length);
+    return offset;
+}
+
+uint16_t parse_prepare(uint8_t *buffer, transfer_action_t *action, uint32_t* length) {
+    uint16_t offset = 0;
+    memcpy(&action->memo, buffer + offset, sizeof(uint64_t));
+
+    offset = *(length);
+    return offset;
+}
+
+uint16_t parse_activate(uint8_t *buffer, transfer_action_t *action, uint32_t* length) {
+    uint16_t offset = 0;
+    memcpy(&action->memo, buffer + offset, sizeof(uint64_t));
 
     offset = *(length);
     return offset;
@@ -375,6 +399,16 @@ uint16_t parse_op(uint8_t *buffer, operation_details_t *opDetails) {
     else if (opDetails->name == ACTION_NEWACCOUNT) {
         opDetails->type = 7;        
         offset += parse_newaccount(buffer + offset, &opDetails->op.newaccount, &dataSize);
+        return offset;
+    }
+    else if (opDetails->name == ACTION_PREPARE) {
+        opDetails->type = 8;        
+        offset += parse_prepare(buffer + offset, &opDetails->op.newaccount, &dataSize);
+        return offset;
+    }
+    else if (opDetails->name == ACTION_ACTIVATE) {
+        opDetails->type = 9;        
+        offset += parse_activate(buffer + offset, &opDetails->op.newaccount, &dataSize);
         return offset;
     }
     else {

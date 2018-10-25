@@ -163,6 +163,16 @@ typedef struct {
 } transfer_action_t;
 
 
+// For Chintai Transactions
+typedef struct {
+    uint64_t memo;    
+} prepare_chintai_action_t;
+
+typedef struct {
+    uint64_t memo;    
+} activate_chintai_action_t;
+
+
 // FUNCTION
 // buyram
 
@@ -366,6 +376,8 @@ typedef struct {
         undelegatebw_action_t undelegatebw;
         voteproducer_action_t voteproducer;
         newaccount_action_t newaccount;
+        prepare_chintai_action_t prepare_chintai;
+        activate_chintai_action_t activate_chintai;        
     } op;
 } operation_details_t;
 
